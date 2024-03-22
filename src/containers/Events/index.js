@@ -7,46 +7,38 @@ import ModalEvent from "../ModalEvent";
 
 import "./style.css";
 
-const PER_PAGE = 9; //nombre d'élement sur la page
+const PER_PAGE = 9; // Nombre d'événements par page
 
 const EventList = () => {
-  //gestion de l'état
-  const { data, error } = useData(); //initialise les états data et error en utilisant le kook useData
-  const [type, setType] = useState(); //initialise l'état type en utilisant  useState
-  const [currentPage, setCurrentPage] = useState(1); //initile l'état de la page actuelle en utilisant useSate
-  
-  //filtrer les évenements en fonction du type et de la page actuel
-  const filteredEvents = (
-    //exprssion ternaire si "type" est définie alors la liste "date?.events" 
-    //est filtrer pour ne contenir que les évenements dont le type correspond à "type"
-    (type ? data?.events.filter(event => event.type === type) : data?.events) || [])
-    //une fois le filtre effectué filtrer un autre filtre les évenement en fonction de leurs index
-    .filter((event, index) => {
-// Vérifie si l'index de l'événement actuel est dans la plage des indices à afficher sur la page courante
-// Calcul : index de début de la page courante <= index de l'événement < index de fin de la page courante
-    if (
-      (currentPage - 1) * PER_PAGE <= index &&
-      PER_PAGE * currentPage > index
-    ) {
-      // Retourne true si l'événement doit être inclus dans la liste filtrée
-      return true;
-    }
-    // Retourne false si l'événement ne doit pas être inclus dans la liste filtrée
-    return false;
-  });
+  const { data, error } = useData(); // Récupération des données d'événements et des erreurs à partir du contexte
+  const [type, setType] = useState(null); // État pour stocker le type d'événement sélectionné pour le filtrage
+  const [currentPage, setCurrentPage] = useState(1); // État pour stocker le numéro de la page actuelle pour la pagination
 
-
-  //fonction pour changer le filtre type d'évenement 
+  // Fonction appelée lorsqu'un nouveau type d'événement est sélectionné
   const changeType = (evtType) => {
-    setCurrentPage(1);//réinitialiser la page actuelle à 1
-    setType(evtType);//définie le filtre du type d'évenement
+    setCurrentPage(1); // Réinitialisation de la page actuelle à la première page
+    setType(evtType); // Mise à jour du type d'événement sélectionné
   };
 
-  //calcule le nombre de pages en fonction des évnement filtrés
-  const pageNumber = Math.floor((filteredEvents?.length || 0) / PER_PAGE) + 1;
-
-  //obtien le liste des types d'évenement uniques
+  // Création d'un ensemble de types d'événements uniques à partir des données disponibles
   const typeList = new Set(data?.events.map((event) => event.type));
+
+  // Filtrage des événements en fonction du type sélectionné
+  let filteredEvents = data?.events || [];
+  if (type) {
+    filteredEvents = filteredEvents.filter((event) => event.type === type);
+  }
+
+  // Calcul des indices de début et de fin pour la pagination
+  const startIndex = (currentPage - 1) * PER_PAGE;
+  const endIndex = startIndex + PER_PAGE;
+
+  // Sélection des événements à afficher sur la page actuelle
+  const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
+
+  // Calcul du nombre total de pages nécessaires pour paginer tous les événements filtrés
+  const pageNumber = Math.ceil(filteredEvents.length / PER_PAGE);
+
   return (
     <>
       {error && <div>An error occured</div>}
@@ -54,15 +46,20 @@ const EventList = () => {
         "loading"
       ) : (
         <>
+          {/* Sélecteur pour choisir le type d'événement */}
           <h3 className="SelectTitle">Catégories</h3>
           <Select
             selection={Array.from(typeList)}
-            onChange={(value) => (value ? changeType(value) : changeType(null))}
+            onChange={(value) => changeType(value)}
           />
+
+          {/* Conteneur pour afficher les cartes d'événements */}
           <div id="events" className="ListContainer">
-            {filteredEvents.map((event) => (
+            {paginatedEvents.map((event) => (
+              // Modal pour afficher les détails de l'événement lorsqu'il est cliqué
               <Modal key={event.id} Content={<ModalEvent event={event} />}>
                 {({ setIsOpened }) => (
+                  // Carte d'événement affichant les informations de base de l'événement
                   <EventCard
                     onClick={() => setIsOpened(true)}
                     imageSrc={event.cover}
@@ -74,11 +71,16 @@ const EventList = () => {
               </Modal>
             ))}
           </div>
+
+          {/* Pagination pour naviguer entre les pages d'événements */}
           <div className="Pagination">
-            {[...Array(pageNumber || 0)].map((_, n) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <a key={n} href="#events" onClick={() => setCurrentPage(n + 1)}>
-                {n + 1}
+            {[...Array(pageNumber)].map((_, index) => (
+              <a
+                key={index}
+                href="#events"
+                onClick={() => setCurrentPage(index + 1)}
+              >
+                {index + 1}
               </a>
             ))}
           </div>

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import "./style.scss";
 
 const ServiceCard = ({ imageSrc, imageAlt, children }) => (
-    <div className="ServiceCard">
+    <div id="services" className="ServiceCard">
       <div className="ServiceCard__imageContainer">
         <img data-testid="card-image-testid" src={imageSrc} alt={imageAlt} />
       </div>

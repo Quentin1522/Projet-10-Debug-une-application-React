@@ -12,8 +12,20 @@ import Form from "../../containers/Form";
 import Modal from "../../containers/Modal";
 import { useData } from "../../contexts/DataContext";
 
+//definiton du compsant page
 const Page = () => {
-  const {last} = useData()
+  //utilisation du hook useData pour récupérer les données
+  const {data} = useData()
+let last;
+  // Si data est défini, vérifie si data.events est défini.
+// Si data.events est défini, récupère le dernier élément du tableau events.
+if (data && data.events && data.events.length > 0) {
+    last = data.events[data.events.length - 1];
+    // Sinon, retourne null.
+// Si data n'est pas défini, retourne null.
+} else {
+    last = null;
+}
 
   return <>
     <header>
@@ -117,13 +129,15 @@ const Page = () => {
     <footer className="row">
       <div className="col presta">
         <h3>Notre derniére prestation</h3>
-        <EventCard
-          imageSrc={last?.cover}
-          title={last?.title}
-          date={new Date(last?.date)}
-          small
-          label="boom"
-        />
+        {/*vérifie qi la variable last existe et si elle contient un titre et une image*/}
+        {last && last.cover && last.title && last.date && last.type && (
+  <EventCard
+    imageSrc={last.cover}
+    title={last.title}
+    date={new Date(last.date)}
+    small label={last.type}
+  />
+)}
       </div>
       <div className="col contact">
         <h3>Contactez-nous</h3>
