@@ -1,76 +1,63 @@
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import PropTypes from "prop-types";
 import Field, { FIELD_TYPES } from "../../components/Field";
 import Select from "../../components/Select";
 import Button, { BUTTON_TYPES } from "../../components/Button";
 
-//simule un appel à une API
-const mockContactApi = () => new Promise((resolve) => { setTimeout(resolve, 1000); })
+// Fonction de simulation d'appel à une API
+const mockContactApi = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
-//définition du composant form
-const Form = ({ onSuccess, onError }) => {
-  //déclaration de l'état local pour gérer l'envoir du formulaire
+// Définition du composant Form
+const Form = ({ onSuccess, onError, setConfirmationMessage }) => {
+  // État local pour gérer l'envoi du formulaire
   const [sending, setSending] = useState(false);
-  //déclaration de l'état local pour gérer le message de confirmation
-  const [confirmationMessage, setConfirmationMessage] = useState(null);
-  //calback pour envoyer le formulaire
+
+  // Callback pour envoyer le formulaire
   const sendContact = useCallback(
     async (evt) => {
-      //empeche le comportement par défault
       evt.preventDefault();
-      //maj de l'état pour indiquer que l'envoie est en cours
       setSending(true);
 
-      //vérifie si un champ est vide
       const formFields = evt.target.elements;
       let isAnyFieldEmpty = false;
-      for (let i = 0; i < formFields.length; i ++){
-        //vérifie su l'élment est un champ de saisie (input) ou un champ de texte (textarea)
-        if (formFields[i].nodeName === "INPUT" || formFields[i].nodeName === "TEXTEREA"){
-          //vérifie si la valeur du champ est vide ou ne contient que des espaces
-          if (!formFields[i].value.trim()){
+      for (let i = 0; i < formFields.length; i++) {
+        if (formFields[i].nodeName === "INPUT" || formFields[i].nodeName === "TEXTAREA") {
+          if (!formFields[i].value.trim()) {
             isAnyFieldEmpty = true;
             break;
           }
         }
       }
-      //si un champ est vide,affiche un message d'erreur
-      if(isAnyFieldEmpty){
-        setConfirmationMessage("Veuillez remplir tous les champs du formulaire");
-      return;
-      }
-      //maj de l'état pour indiquer que l'envoir du formualire est en cours
-      setSending(true);
 
-      //appel de l'API similée pour envoyer les données du formulaire
+      if (isAnyFieldEmpty) {
+        setConfirmationMessage("Veuillez remplir tous les champs du formulaire");
+        setSending(false); // Mettre sending à false car l'envoi a échoué
+        return;
+      }
+
       try {
-        //appel de la fonction mockContactApi
         await mockContactApi();
-        //maj de l'état après l'envoie réussi 
         setSending(false);
-        //message de confirmation
-        setConfirmationMessage("Message envoyé !")
+        setConfirmationMessage("Message envoyé !");
+        onSuccess(); // Appeler onSuccess lorsque l'envoi réussit
       } catch (err) {
-        //maj de l'état en cas d'erreur
         setSending(false);
-        //appel de la fonction onError avec l'erreur
-        onError(err);
+        onError(err); // Appeler onError en cas d'erreur
       }
     },
-    [onSuccess, onError]
+    [onSuccess, onError, setConfirmationMessage]
   );
+
   return (
     <form onSubmit={sendContact}>
-      {/*affichage du message de confirmation*/}
-      {confirmationMessage && <div className="confirmation-message">{confirmationMessage}</div>}
       <div className="row">
         <div className="col">
           <Field placeholder="" label="Nom" />
           <Field placeholder="" label="Prénom" />
           <Select
-            selection={["Personel", "Entreprise"]}
+            selection={["Personnel", "Entreprise"]}
             onChange={() => null}
-            label="Personel / Entreprise"
+            label="Personnel / Entreprise"
             type="large"
             titleEmpty
           />
@@ -81,7 +68,7 @@ const Form = ({ onSuccess, onError }) => {
         </div>
         <div className="col">
           <Field
-            placeholder="message"
+            placeholder="Message"
             label="Message"
             type={FIELD_TYPES.TEXTAREA}
           />
@@ -91,16 +78,11 @@ const Form = ({ onSuccess, onError }) => {
   );
 };
 
-//validation des propriétés du composant Form
+// Validation des propriétés du composant Form
 Form.propTypes = {
-  onError: PropTypes.func,
-  onSuccess: PropTypes.func,
-}
-
-//définiation des valeurs par défaut des propriétés du composant form
-Form.defaultProps = {
-  onError: () => null,
-  onSuccess: () => null,
-}
+  onError: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+  setConfirmationMessage: PropTypes.func.isRequired,
+};
 
 export default Form;
