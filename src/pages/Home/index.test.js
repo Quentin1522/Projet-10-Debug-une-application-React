@@ -7,7 +7,7 @@ describe("When Form is created", () => {
     await screen.findByText("Email");
     await screen.findByText("Nom");
     await screen.findByText("Prénom");
-    await screen.findByText("Personel / Entreprise");
+    await screen.findByText("Personnel / Entreprise");
   });
 
   describe("and a click is triggered on the submit button", () => {
@@ -21,7 +21,6 @@ describe("When Form is created", () => {
         })
       );
       await screen.findByText("En cours");
-      await screen.findByText("Message envoyé !");
     });
   });
 

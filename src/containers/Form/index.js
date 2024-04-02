@@ -5,7 +5,7 @@ import Select from "../../components/Select";
 import Button, { BUTTON_TYPES } from "../../components/Button";
 
 // Fonction de simulation d'appel à une API
-const mockContactApi = () => new Promise((resolve) => setTimeout(resolve, 1000));
+const mockContactApi = () => new Promise((resolve) => { setTimeout(resolve, 1000); });
 
 // Définition du composant Form
 const Form = ({ onSuccess, onError, setConfirmationMessage }) => {
@@ -31,11 +31,11 @@ const Form = ({ onSuccess, onError, setConfirmationMessage }) => {
 
       if (isAnyFieldEmpty) {
         setConfirmationMessage("Veuillez remplir tous les champs du formulaire");
-        setSending(false); // Mettre sending à false car l'envoi a échoué
+        onError()
         return;
       }
 
-      try {
+   try {
         await mockContactApi();
         setSending(false);
         setConfirmationMessage("Message envoyé !");
@@ -80,9 +80,16 @@ const Form = ({ onSuccess, onError, setConfirmationMessage }) => {
 
 // Validation des propriétés du composant Form
 Form.propTypes = {
-  onError: PropTypes.func.isRequired,
-  onSuccess: PropTypes.func.isRequired,
-  setConfirmationMessage: PropTypes.func.isRequired,
+  onError: PropTypes.func,
+  onSuccess: PropTypes.func,
+  setConfirmationMessage: PropTypes.func, // Ajout de la validation pour la fonction de mise à jour du message de confirmation
+};
+
+// Définition des valeurs par défaut des propriétés du composant Form
+Form.defaultProps = {
+  onError: () => null,
+  onSuccess: () => null,
+  setConfirmationMessage: () => null, // Définition d'une fonction vide par défaut
 };
 
 export default Form;
