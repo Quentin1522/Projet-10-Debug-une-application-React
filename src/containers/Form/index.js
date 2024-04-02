@@ -49,7 +49,7 @@ const Form = ({ onSuccess, onError }) => {
         //maj de l'état après l'envoie réussi 
         setSending(false);
         //message de confirmation
-        setConfirmationMessage("Votre message a été envoyé avec succès.")
+        setConfirmationMessage("Message envoyé !")
       } catch (err) {
         //maj de l'état en cas d'erreur
         setSending(false);

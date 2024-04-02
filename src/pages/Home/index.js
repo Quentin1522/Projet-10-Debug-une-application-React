@@ -108,7 +108,7 @@ if (data && data.events && data.events.length > 0) {
         <h2 className="Title">Contact</h2>
         <Modal
           Content={
-            <div className="ModalMessage--success">
+            <div id="messageConfirm" className="ModalMessage--success">
               <div>Message envoyé !</div>
               <p>
                 Merci pour votre message nous tâcherons de vous répondre dans
